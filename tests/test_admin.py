@@ -112,7 +112,7 @@ def test_urlobject_crud(mocker, admin_app, admin_client):
         "Count": 1,
         "ScannedCount": 1,
     }
-    from admin.services import URLObjectServices
+    from common.services.urlobject import URLObjectServices
 
     url_obj = URLObjectServices.get_urlobject(url_short_key, incl_deleted=True)
     assert url_obj.deleted == True
