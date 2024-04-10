@@ -1,6 +1,6 @@
 from flask import Blueprint, request, jsonify
 
-from admin.services import URLObjectServices
+from common.services.urlobject import URLObjectServices
 from common.exceptions import BadRequestException
 
 api = Blueprint("admin", __name__, url_prefix="/admin")
@@ -29,7 +29,7 @@ def get_short_urls():
     Default limit is 50.
     """
     # Get the list of short URLs for the current user
-    short_urls = URLObjectServices.get_short_urls(as_dict=True)
+    short_urls = URLObjectServices.get_collection(as_dict=True)
     # short_urls = URLObjectServices.get_short_urls(user_id=_get_user_id(), as_dict=True)  #-> to restricted user access
 
     # Return the list of short URLs as a JSON response
@@ -72,7 +72,7 @@ def shorten_url():
         return jsonify({"error": "No 'long_url' provided in the request body"}), 400
 
     # Creates the short URL for the long URL
-    short_url = URLObjectServices.create_short_url(long_url, user_id=_get_user_id())
+    short_url = URLObjectServices.create(long_url, user_id=_get_user_id())
 
     # Return the short URL as a JSON response
     return jsonify({"short_url": short_url}), 201

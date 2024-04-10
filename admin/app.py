@@ -21,8 +21,10 @@ def create_app(configs=None):
         app.config.update(configs)
 
     from common.dynamodb import db
+    from common.redis import redis_cli
 
     db.init_app(app)
+    redis_cli.init_app(app)
 
     from admin.views import api
 
