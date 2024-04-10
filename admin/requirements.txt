@@ -1,0 +1,7 @@
+Flask==3.0.2
+Flask-Compress==1.14
+boto3==1.34.79
+pynamodb==6.0.0
+python-dotenv==1.0.1
+Flask-PynamoDB==0.0.2
+flask-redis==0.4.0
