@@ -13,12 +13,74 @@
 					"name": "Greetings",
 					"request": {
 						"method": "GET",
-						"header": []
+						"header": [],
+						"url": {
+							"raw": "{{BASE_URL}}{{CUSTOM_PORT}}{{BASE_ADMIN_PATH}}/",
+							"host": [
+								"{{BASE_URL}}{{CUSTOM_PORT}}{{BASE_ADMIN_PATH}}"
+							],
+							"path": [
+								""
+							]
+						}
 					},
 					"response": []
 				},
 				{
 					"name": "Create short URL",
+					"request": {
+						"method": "POST",
+						"header": [],
+						"body": {
+							"mode": "raw",
+							"raw": "{\n    \"long_url\": \"http://www.jpchavat.com\"\n}",
+							"options": {
+								"raw": {
+									"language": "json"
+								}
+							}
+						},
+						"url": {
+							"raw": "{{BASE_URL}}{{CUSTOM_PORT}}{{BASE_ADMIN_PATH}}/urls",
+							"host": [
+								"{{BASE_URL}}{{CUSTOM_PORT}}{{BASE_ADMIN_PATH}}"
+							],
+							"path": [
+								"urls"
+							]
+						}
+					},
+					"response": []
+				},
+				{
+					"name": "Create short URL Copy",
+					"request": {
+						"method": "DELETE",
+						"header": [],
+						"body": {
+							"mode": "raw",
+							"raw": "{\n    \"long_url\": \"www.jpchavat.com\"\n}",
+							"options": {
+								"raw": {
+									"language": "json"
+								}
+							}
+						},
+						"url": {
+							"raw": "{{BASE_URL}}{{CUSTOM_PORT}}{{BASE_ADMIN_PATH}}/urls/AABBCC",
+							"host": [
+								"{{BASE_URL}}{{CUSTOM_PORT}}{{BASE_ADMIN_PATH}}"
+							],
+							"path": [
+								"urls",
+								"AABBCC"
+							]
+						}
+					},
+					"response": []
+				},
+				{
+					"name": "Get URLObject",
 					"protocolProfileBehavior": {
 						"disableBodyPruning": true
 					},
@@ -33,6 +95,45 @@
 									"language": "json"
 								}
 							}
+						},
+						"url": {
+							"raw": "{{BASE_URL}}{{CUSTOM_PORT}}{{BASE_ADMIN_PATH}}/urls/AABBCC",
+							"host": [
+								"{{BASE_URL}}{{CUSTOM_PORT}}{{BASE_ADMIN_PATH}}"
+							],
+							"path": [
+								"urls",
+								"AABBCC"
+							]
+						}
+					},
+					"response": []
+				},
+				{
+					"name": "Get URLObject collection",
+					"protocolProfileBehavior": {
+						"disableBodyPruning": true
+					},
+					"request": {
+						"method": "GET",
+						"header": [],
+						"body": {
+							"mode": "raw",
+							"raw": "{\n    \"long_url\": \"www.jpchavat.com\"\n}",
+							"options": {
+								"raw": {
+									"language": "json"
+								}
+							}
+						},
+						"url": {
+							"raw": "{{BASE_URL}}{{CUSTOM_PORT}}{{BASE_ADMIN_PATH}}/urls",
+							"host": [
+								"{{BASE_URL}}{{CUSTOM_PORT}}{{BASE_ADMIN_PATH}}"
+							],
+							"path": [
+								"urls"
+							]
 						}
 					},
 					"response": []
@@ -79,7 +180,7 @@
 		},
 		{
 			"key": "CUSTOM_PORT",
-			"value": ":5000",
+			"value": ":80",
 			"type": "string"
 		}
 	]
