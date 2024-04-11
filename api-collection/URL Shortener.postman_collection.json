@@ -137,6 +137,41 @@
 						}
 					},
 					"response": []
+				},
+				{
+					"name": "Get URLObject collection Copy",
+					"protocolProfileBehavior": {
+						"disableBodyPruning": true
+					},
+					"request": {
+						"method": "GET",
+						"header": [],
+						"body": {
+							"mode": "raw",
+							"raw": "{\n    \"long_url\": \"www.jpchavat.com\"\n}",
+							"options": {
+								"raw": {
+									"language": "json"
+								}
+							}
+						},
+						"url": {
+							"raw": "{{BASE_URL}}{{CUSTOM_PORT}}{{BASE_ADMIN_PATH}}/analytics?limit=2",
+							"host": [
+								"{{BASE_URL}}{{CUSTOM_PORT}}{{BASE_ADMIN_PATH}}"
+							],
+							"path": [
+								"analytics"
+							],
+							"query": [
+								{
+									"key": "limit",
+									"value": "2"
+								}
+							]
+						}
+					},
+					"response": []
 				}
 			]
 		},

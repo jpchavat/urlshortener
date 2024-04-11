@@ -89,8 +89,9 @@ def delete_short_url(short_url):
 @api.route("/analytics", methods=["GET"])
 def get_analytics():
     """Returns a list of the last N analytic records."""
+    limit = request.args.get("limit", 50, type=int)
     # Get the list of analytic records
-    analytics = AnalyticsServices.get_last_analytics(limit=50, as_dict=True)
+    analytics = AnalyticsServices.get_last_analytics(limit=limit, as_dict=True)
 
     # Return the list of analytic records as a JSON response
     return jsonify(analytics)
