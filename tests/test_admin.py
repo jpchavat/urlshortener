@@ -6,6 +6,9 @@ def test_urlobject_crud(mocker, admin_app, admin_client):
     fake_db = mocker.MagicMock()
     mocker.patch(PATCH_METHOD, fake_db)
 
+    # silence the cache
+    mocker.patch("common.services.urlobject.URLObjectCacheService", mocker.MagicMock())
+
     assert admin_app
     assert admin_client
 
@@ -137,6 +140,9 @@ def test_crud_exceptions(mocker, admin_app, admin_client):
     fake_db = mocker.MagicMock()
 
     mocker.patch(PATCH_METHOD, fake_db)
+
+    # silence the cache
+    mocker.patch("common.services.urlobject.URLObjectCacheService", mocker.MagicMock())
 
     # Test an invalid Admin-app URL
     response = admin_client.get("/admin/notfound")
