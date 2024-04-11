@@ -74,6 +74,7 @@ services:
       - REDIS_URL=redis://redis:6379/0
       - AWS_SQS_ENDPOINT=http://sqs-elasticmq:9324
       - AWS_DYNAMODB_HOST=http://dynamodb-local:8000
+      - ZOOKEEPER_HOSTS=zoo1:2181,zoo2:2181,zoo3:2181
 
   admin-app-2:
     build:
@@ -89,6 +90,7 @@ services:
       - REDIS_URL=redis://redis:6379/0
       - AWS_SQS_ENDPOINT=http://sqs-elasticmq:9324
       - AWS_DYNAMODB_HOST=http://dynamodb-local:8000
+      - ZOOKEEPER_HOSTS=zoo1:2181,zoo2:2181,zoo3:2181
 
   admin-app-3:
     build:
@@ -104,6 +106,7 @@ services:
       - REDIS_URL=redis://redis:6379/0
       - AWS_SQS_ENDPOINT=http://sqs-elasticmq:9324
       - AWS_DYNAMODB_HOST=http://dynamodb-local:8000
+      - ZOOKEEPER_HOSTS=zoo1:2181,zoo2:2181,zoo3:2181
 
   dynamodb-local:
     command: "-jar DynamoDBLocal.jar -sharedDb -dbPath ./data"
@@ -141,6 +144,36 @@ services:
       - REDIS_URL=redis://redis:6379/0
       - AWS_SQS_ENDPOINT=http://sqs-elasticmq:9324
       - AWS_DYNAMODB_HOST=http://dynamodb-local:8000
+
+  zoo1:
+    image: zookeeper
+    restart: always
+    hostname: zoo1
+    ports:
+      - 2181:2181
+    environment:
+      ZOO_MY_ID: 1
+      ZOO_SERVERS: server.1=zoo1:2888:3888;2181 server.2=zoo2:2888:3888;2181 server.3=zoo3:2888:3888;2181
+
+  zoo2:
+    image: zookeeper
+    restart: always
+    hostname: zoo2
+    ports:
+      - 2182:2181
+    environment:
+      ZOO_MY_ID: 2
+      ZOO_SERVERS: server.1=zoo1:2888:3888;2181 server.2=zoo2:2888:3888;2181 server.3=zoo3:2888:3888;2181
+
+  zoo3:
+    image: zookeeper
+    restart: always
+    hostname: zoo3
+    ports:
+      - 2183:2181
+    environment:
+      ZOO_MY_ID: 3
+      ZOO_SERVERS: server.1=zoo1:2888:3888;2181 server.2=zoo2:2888:3888;2181 server.3=zoo3:2888:3888;2181
 
 
 volumes:

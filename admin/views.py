@@ -34,11 +34,12 @@ def _get_user_id():
 @api.route("/urls", methods=["GET"])
 def get_short_urls():
     """
-    Returns a list of all short URLs created by the admin user.
+    Returns a list of all the short URLs created by the admin user.
     Default limit is 50.
     """
+    limit = request.args.get("limit", 50, type=int)
     # Get the list of short URLs for the current user
-    short_urls = URLObjectServices.get_collection(as_dict=True)
+    short_urls = URLObjectServices.get_collection(as_dict=True, limit=limit)
     # short_urls = URLObjectServices.get_short_urls(user_id=_get_user_id(), as_dict=True)  #-> to restricted user access
 
     # Return the list of short URLs as a JSON response

@@ -12,3 +12,4 @@ class Config:
     DYNAMODB_READ_CAPACITY_UNITS = 1  # ignored when using DynamoDB in on-demand mode -> https://github.com/pynamodb/PynamoDB/issues/629#issuecomment-517898130
     DYNAMODB_WRITE_CAPACITY_UNITS = 1  # ignored when using DynamoDB in on-demand mode
     REDIS_URL = os.environ.get("REDIS_URL")
+    ZOOKEEPER_HOSTS = os.environ.get("ZOOKEEPER_HOSTS")

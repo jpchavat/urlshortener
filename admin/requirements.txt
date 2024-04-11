@@ -5,3 +5,4 @@ pynamodb==6.0.0
 python-dotenv==1.0.1
 Flask-PynamoDB==0.0.2
 flask-redis
+kazoo
