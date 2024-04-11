@@ -1,6 +1,7 @@
 from flask import Blueprint, request, jsonify
 
 from common.exceptions import BadRequestException
+from common.services.analytics import AnalyticsServices
 from common.services.urlobject import URLObjectServices
 from common.validators import validate_short_url
 
@@ -83,3 +84,13 @@ def delete_short_url(short_url):
     URLObjectServices.delete_url(short_url)
 
     return jsonify({"short_url": short_url})
+
+
+@api.route("/analytics", methods=["GET"])
+def get_analytics():
+    """Returns a list of the last N analytic records."""
+    # Get the list of analytic records
+    analytics = AnalyticsServices.get_last_analytics(limit=50, as_dict=True)
+
+    # Return the list of analytic records as a JSON response
+    return jsonify(analytics)

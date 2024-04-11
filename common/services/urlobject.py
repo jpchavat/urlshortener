@@ -4,7 +4,6 @@ from typing import Union
 from common.exceptions import ItemDoesNotExistException
 from common.logger import logger
 from common.redis import redis_cli
-from common.models.analytic import AnalyticRecordData
 from common.models.urlobject import URLObject
 from common.services.sqs import AnalyticsServices
 from common.services.uniquekey import UniqueShortURLKeyService
@@ -173,14 +172,14 @@ class URLObjectServices:
             analytics_srv = AnalyticsServices()
             try:
                 analytics_srv.send(
-                    AnalyticRecordData(
-                        short_url=short_url,
-                        long_url=long_url,
-                        ip=analytics.get("ip"),
-                        timestamp=int(time.time()),
-                        user_agent=analytics.get("user_agent"),
-                        language=analytics.get("language"),
-                    )
+                    {
+                        "short_url": short_url,
+                        "long_url": long_url,
+                        "ip": analytics.get("ip"),
+                        "timestamp": int(time.time()),
+                        "user_agent": analytics.get("user_agent"),
+                        "language": analytics.get("language"),
+                    }
                 )
             except Exception as e:
                 # FIXME: this is a temporary solution to avoid breaking the redirection process

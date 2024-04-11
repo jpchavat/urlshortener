@@ -1,10 +1,9 @@
-import os
+import json
 
 import boto3
 from flask import current_app
 
 from common.logger import logger
-from common.models.analytic import AnalyticRecordData
 
 
 class AnalyticsServices:
@@ -23,30 +22,38 @@ class AnalyticsServices:
         )
 
         # Assure the queue exists
-        response = self.get_queue()
-        if not response:
+        try:
+            response = self.get_queue()
+            if not response:
+                logger().debug(f"Queue not found. Creating a new one.")
+                response = self.create_queue()
+        except Exception as e:
+            # FIXME: double check (empty response plus exception) due to
+            #  strange behavior of the get_queue method
+            #  It needs to be researched and fixed (mind the version of boto3 and botocore)
             logger().debug(f"Queue not found. Creating a new one.")
             response = self.create_queue()
         self.queue_url = response
 
-    def send(self, analytic_record: AnalyticRecordData) -> dict:
+    def send(self, analytic_record: dict) -> dict:
         """Send an Analytic message to the queue."""
         response = self.client.send_message(
-            QueueUrl=self.queue_url, MessageBody=analytic_record.to_json()
+            QueueUrl=self.queue_url, MessageBody=json.dumps(analytic_record)
         )
         logger().debug(f"Message sent: {response}")
 
         return response
 
-    def receive(self):
+    def receive(self, wait_time: int = 20, visibility_timeout: int = 30) -> dict:
         """Receive an Analytic message from the queue."""
         response = self.client.receive_message(
-            QueueUrl=self.queue_url, MaxNumberOfMessages=1
+            QueueUrl=self.queue_url,
+            MaxNumberOfMessages=1,
+            WaitTimeSeconds=wait_time,
+            VisibilityTimeout=visibility_timeout,
         )
         logger().debug(f"Message received: {response}")
-        if "Messages" in response:
-            return AnalyticRecordData.from_json(response["Messages"][0]["Body"])
-        return None
+        return response
 
     def create_queue(self):
         """Create the Analytics standard queue with the given name."""

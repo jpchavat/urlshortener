@@ -128,6 +128,20 @@ services:
       - "9324:9324"
       - "9325:9325"
 
+  lambda-consumer:
+    build:
+      context: '..'
+      dockerfile: 'Dockerfile-lambdaconsumer'
+    depends_on:
+      - sqs-elasticmq
+      - dynamodb-local
+    env_file:
+      - ../admin/.env
+    environment:
+      - REDIS_URL=redis://redis:6379/0
+      - AWS_SQS_ENDPOINT=http://sqs-elasticmq:9324
+      - AWS_DYNAMODB_HOST=http://dynamodb-local:8000
+
 
 volumes:
   postgres-data:
