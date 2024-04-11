@@ -48,4 +48,13 @@ class UniqueShortURLKeyService:
         while number > 0:
             number, remainder = divmod(number, 62)
             result.append(cls.BASE62_SHUFFLED_CHARS[remainder])
-        return "".join(reversed(result)).zfill(cls.SHORT_URL_KEY_LENGTH)
+        pre_result = "".join(reversed(result)).zfill(cls.SHORT_URL_KEY_LENGTH)
+        # Interchange the characters to make it harder to guess
+        # Example: 00ABCD -> C0ABD0
+        return (
+            pre_result[4]
+            + pre_result[1]
+            + pre_result[2:4]
+            + pre_result[5]
+            + pre_result[0]
+        )
