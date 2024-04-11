@@ -2,10 +2,11 @@ import time
 from typing import Union
 
 from common.exceptions import ItemDoesNotExistException
+from common.logger import logger
+from common.redis import redis_cli
 from common.models.analytic import AnalyticRecordData
 from common.models.urlobject import URLObject
-from common.services.sqs import AnalyticsTaskService
-from common.redis import redis_cli
+from common.services.sqs import AnalyticsServices
 from common.services.uniquekey import UniqueShortURLKeyService
 
 
@@ -34,7 +35,7 @@ class URLObjectServices:
     cache_prefix = "url:"
 
     @staticmethod
-    def create(long_url: str, user_id: str):
+    def create(long_url: str, user_id: str, as_dict=False) -> Union[URLObject, dict]:
         """
         Creates a new URL Object and persist it in the database.
         The short URL key is generated using the UniqueShortURLKeyService.
@@ -56,7 +57,7 @@ class URLObjectServices:
         )
         url_object.save()
 
-        return short_url
+        return url_object.attribute_values if as_dict else url_object
 
     @staticmethod
     def _get_one(short_url: str, incl_deleted: bool) -> URLObject:
@@ -138,7 +139,8 @@ class URLObjectServices:
                 error_code="short_url_not_found", params={"short_url": short_url}
             )
 
-    def process_redirection(self, short_url: str, analytics: dict = None) -> str:
+    @classmethod
+    def process_redirection(cls, short_url: str, analytics: dict = None) -> str:
         """
         Process the redirection of the short URL key to the original URL.
         This method does many things:
@@ -161,22 +163,32 @@ class URLObjectServices:
         long_url: str = URLObjectCacheService.get(short_url)
         if not long_url:
             # Cache miss, then try to get the URL from the DB
-            long_url = self.get_long_url(short_url, incl_deleted=False)
+            long_url = cls.get_long_url(short_url, incl_deleted=False)
             # If found, add it to the cache
             URLObjectCacheService.add(short_url, long_url)
 
         if (
             analytics is not None
         ):  # even if the analytics is an empty dict, we still record it
-            AnalyticsTaskService().send(
-                AnalyticRecordData(
-                    short_url=short_url,
-                    long_url=long_url,
-                    ip=analytics.get("ip"),
-                    timestamp=int(time.time()),
-                    user_agent=analytics.get("user_agent"),
-                    language=analytics.get("language"),
+            analytics_srv = AnalyticsServices()
+            try:
+                analytics_srv.send(
+                    AnalyticRecordData(
+                        short_url=short_url,
+                        long_url=long_url,
+                        ip=analytics.get("ip"),
+                        timestamp=int(time.time()),
+                        user_agent=analytics.get("user_agent"),
+                        language=analytics.get("language"),
+                    )
                 )
-            )
+            except Exception as e:
+                # FIXME: this is a temporary solution to avoid breaking the redirection process
+                #    I know this is too broad, but it's just for the PoC
+                #    I tried with analytics_srv.client.exceptions.EndpointConnectionError
+                #    but it didn't work as expected
+                # If the connection to the SQS service fails, don't stop the process of redirection
+                # Just log the error and continue
+                logger().error(f"Failed to send analytics data to the queue: {e}")
 
         return long_url

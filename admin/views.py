@@ -1,9 +1,17 @@
 from flask import Blueprint, request, jsonify
 
-from common.services.urlobject import URLObjectServices
 from common.exceptions import BadRequestException
+from common.services.urlobject import URLObjectServices
+from common.validators import validate_short_url
 
 api = Blueprint("admin", __name__, url_prefix="/admin")
+
+
+@api.before_request
+def enforce_json_content_type():
+    # FIXME: this can be merged into common.validators
+    if request.method in ["POST", "PUT"] and not request.is_json:
+        raise BadRequestException(error_code="invalid_content_type")
 
 
 @api.route("/")
@@ -36,20 +44,10 @@ def get_short_urls():
     return jsonify(short_urls)
 
 
-def _validate_short_url(short_url):
-    """Validates the short URL key, raising an exception if it's invalid."""
-    # Short URL key  must be alphanumeric and 6 characters long
-    if not short_url.isalnum() or len(short_url) != 6:
-        raise BadRequestException(
-            error_code="invalid_short_url",
-            params={"short_url": short_url},
-        )
-
-
 @api.route("/urls/<short_url>", methods=["GET"])
 def get_url_object(short_url):
     """Returns a single URLObject identified by the short URL key."""
-    _validate_short_url(short_url)
+    validate_short_url(short_url)
 
     # Get the URLObject for the given short URL key
     url_object = URLObjectServices.get_urlobject(short_url, as_dict=True)
@@ -63,25 +61,24 @@ def shorten_url():
     """Given a long URL in the payload, creates a short URL in the system and returns it to the user."""
     # Get the request body as JSON
     request_data = request.get_json()
-    if not request_data:
-        return jsonify({"error": "No request body provided"}), 400
-
     # Extract the long URL from the request body
     long_url = request_data.get("long_url")
     if not long_url:
-        return jsonify({"error": "No 'long_url' provided in the request body"}), 400
+        raise BadRequestException(error_code="missing_long_url")
+    if not long_url.startswith("http") or not long_url.startswith("https"):
+        raise BadRequestException(error_code="long_url_not_http_https")
 
     # Creates the short URL for the long URL
-    short_url = URLObjectServices.create(long_url, user_id=_get_user_id())
+    short_url = URLObjectServices.create(long_url, user_id=_get_user_id(), as_dict=True)
 
     # Return the short URL as a JSON response
-    return jsonify({"short_url": short_url}), 201
+    return jsonify(short_url), 201
 
 
 @api.route("/urls/<short_url>", methods=["DELETE"])
 def delete_short_url(short_url):
     """Deletes the URLObject identified by the short URL key."""
-    _validate_short_url(short_url)
+    validate_short_url(short_url)
     # Delete the URLObject for the given short URL key
     URLObjectServices.delete_url(short_url)
 
