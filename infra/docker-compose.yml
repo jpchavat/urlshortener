@@ -1,0 +1,135 @@
+version: '3'
+name: url-shortener
+services:
+  nginx-lb:
+    image: nginx:latest
+    volumes:
+      - ./nginx.lb.conf:/etc/nginx/nginx.conf:ro
+    ports:
+      - "80:80"
+    depends_on:
+      - redirector-app-1
+      - admin-app-1
+
+  redirector-app-1:
+    build:
+      context: '..'
+      dockerfile: 'Dockerfile-redirector'
+    ports:
+      - "8080:8080"
+    depends_on:
+      - sqs-elasticmq
+      - dynamodb-local
+      - redis
+    env_file:
+      - ../redirector/.env
+    environment:
+      - REDIS_URL=redis://redis:6379/0
+      - AWS_SQS_ENDPOINT=http://sqs-elasticmq:9324
+      - AWS_DYNAMODB_HOST=http://dynamodb-local:8000
+
+  redirector-app-2:
+    build:
+      context: '..'
+      dockerfile: 'Dockerfile-redirector'
+    ports:
+      - "8081:8080"
+    depends_on:
+      - redirector-app-1
+    env_file:
+      - ../redirector/.env
+    environment:
+      - REDIS_URL=redis://redis:6379/0
+      - AWS_SQS_ENDPOINT=http://sqs-elasticmq:9324
+      - AWS_DYNAMODB_HOST=http://dynamodb-local:8000
+
+  redirector-app-3:
+    build:
+      context: '..'
+      dockerfile: 'Dockerfile-redirector'
+    ports:
+      - "8082:8080"
+    depends_on:
+      - redirector-app-1
+    env_file:
+      - ../redirector/.env
+    environment:
+      - REDIS_URL=redis://redis:6379/0
+      - AWS_SQS_ENDPOINT=http://sqs-elasticmq:9324
+      - AWS_DYNAMODB_HOST=http://dynamodb-local:8000
+
+  admin-app-1:
+    build:
+      context: '..'
+      dockerfile: 'Dockerfile-admin'
+    ports:
+      - "8000:8000"
+    depends_on:
+      - sqs-elasticmq
+      - dynamodb-local
+      - redis
+    env_file:
+      - ../admin/.env
+    environment:
+      - REDIS_URL=redis://redis:6379/0
+      - AWS_SQS_ENDPOINT=http://sqs-elasticmq:9324
+      - AWS_DYNAMODB_HOST=http://dynamodb-local:8000
+
+  admin-app-2:
+    build:
+      context: '..'
+      dockerfile: 'Dockerfile-admin'
+    ports:
+      - "8001:8000"
+    depends_on:
+      - admin-app-1
+    env_file:
+      - ../admin/.env
+    environment:
+      - REDIS_URL=redis://redis:6379/0
+      - AWS_SQS_ENDPOINT=http://sqs-elasticmq:9324
+      - AWS_DYNAMODB_HOST=http://dynamodb-local:8000
+
+  admin-app-3:
+    build:
+      context: '..'
+      dockerfile: 'Dockerfile-admin'
+    ports:
+      - "8002:8000"
+    depends_on:
+      - admin-app-1
+    env_file:
+      - ../admin/.env
+    environment:
+      - REDIS_URL=redis://redis:6379/0
+      - AWS_SQS_ENDPOINT=http://sqs-elasticmq:9324
+      - AWS_DYNAMODB_HOST=http://dynamodb-local:8000
+
+  dynamodb-local:
+    command: "-jar DynamoDBLocal.jar -sharedDb -dbPath ./data"
+    image: amazon/dynamodb-local:latest
+    ports:
+      - "9000:8000"
+    user: root
+    volumes:
+      - dynamodb-data:/home/dynamodblocal/data
+
+  redis:
+    image: redis:6.2-alpine
+    volumes:
+      - redis-data:/data
+      - ./redis.conf:/usr/local/etc/redis/redis.conf:ro
+    ports:
+      - "6379:6379"
+
+  sqs-elasticmq:
+    image: softwaremill/elasticmq-native:latest
+    ports:
+      - "9324:9324"
+      - "9325:9325"
+
+
+volumes:
+  postgres-data:
+  dynamodb-data:
+  redis-data:

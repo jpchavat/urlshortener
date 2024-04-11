@@ -1,0 +1,22 @@
+FROM python:3.9-slim
+
+WORKDIR /usr/src
+
+ENV PYTHONDONTWRITEBYTECODE=1
+ENV PYTHONUNBUFFERED=1
+
+# Copy the Flask app files
+COPY admin ./admin
+COPY common ./common
+
+# Install the Python dependencies
+RUN pip install --no-cache-dir -r admin/requirements.txt
+RUN pip install --no-cache-dir gunicorn
+
+# Expose the port
+EXPOSE 8000
+
+# Start gunicorn and the Flask app
+RUN chmod +x admin/entrypoint.sh
+ENTRYPOINT "admin/entrypoint.sh"
+#CMD ["gunicorn", "-w", "2", "-b", "0.0.0.0:8000", "--access-logfile=-", "admin.app:create_app()"]
