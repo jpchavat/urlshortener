@@ -33,7 +33,7 @@
 						"header": [],
 						"body": {
 							"mode": "raw",
-							"raw": "{\n    \"long_url\": \"http://www.jpchavat.com\"\n}",
+							"raw": "{\n    \"long_url\": \"https://www.youtube.com/watch?v=uRhb-iLPbuQ\"\n}",
 							"options": {
 								"raw": {
 									"language": "json"
@@ -142,7 +142,25 @@
 		},
 		{
 			"name": "Redirector",
-			"item": []
+			"item": [
+				{
+					"name": "Redirect",
+					"request": {
+						"method": "GET",
+						"header": [],
+						"url": {
+							"raw": "{{BASE_URL}}{{CUSTOM_PORT}}/AABBCC",
+							"host": [
+								"{{BASE_URL}}{{CUSTOM_PORT}}"
+							],
+							"path": [
+								"AABBCC"
+							]
+						}
+					},
+					"response": []
+				}
+			]
 		}
 	],
 	"event": [
