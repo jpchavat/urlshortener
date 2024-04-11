@@ -65,7 +65,7 @@ def shorten_url():
     long_url = request_data.get("long_url")
     if not long_url:
         raise BadRequestException(error_code="missing_long_url")
-    if not long_url.startswith("http") or not long_url.startswith("https"):
+    if not long_url.startswith("http") and not long_url.startswith("https"):
         raise BadRequestException(error_code="long_url_not_http_https")
 
     # Creates the short URL for the long URL

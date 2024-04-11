@@ -49,6 +49,12 @@ def test_urlobject_crud(mocker, admin_app, admin_client):
     assert response.json
     url_short_key = response.json["short_url"]
 
+    body = {"long_url": "www.jpchavat.com"}
+    response = admin_client.post("/admin/urls", json=body)
+    assert response.status_code == 400
+    assert response.json
+    assert response.json["error_code"] == "long_url_not_http_https"
+
     # Test getting the just created url object
     fake_db.return_value = {
         "Items": [
