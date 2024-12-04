@@ -1,76 +1,67 @@
 # URL Shortener 🔗
+## Project Description 📝
+This project implements a URL shortening system with the following functional and non-functional requirements:
 
-## Descripción del Proyecto 📝
+### Functional Requirements 🛠️
+- The system must allow shortening a long URL into a short URL.
+- The system must allow redirecting a short URL to the original long URL.
+- The system stores information about short URL traffic.
+- The system must allow deleting a short URL.
 
-Este proyecto implementa un sistema de acortamiento de URLs con los siguientes requerimientos funcionales y no funcionales:
+### Non-Functional Requirements 🔍
+- The system must be highly available.
+- Creating a short URL must be fast, in less than 1 second.
+- Redirecting a short URL must be fast, in less than 10 milliseconds in 90% of cases.
+- The system must support a redirection traffic of 50,000 requests per second.
 
-### Requerimientos Funcionales 🛠️
-
-- El sistema debe permitir acortar una URL larga en una URL corta.
-- El sistema debe permitir redirigir una URL corta a la URL larga original.
-- El sistema almacena información sobre el tráfico de las URLs cortas.
-- El sistema debe permitir eliminar una URL corta.
-
-### Requerimientos No Funcionales 🔍
-
-- El sistema debe ser altamente disponible.
-- La creación de una URL corta debe ser rápida, en menos de 1 segundo.
-- La redirección de una URL corta debe ser rápida, en menos de 10 milisegundos en el 90% de los casos.
-- El sistema debe soportar un tráfico de redirección de 50.000 peticiones por segundo.
-
-## Cómo Ejecutar el Proyecto 🚀
-
-### Requisitos
+## How to Run the Project 🚀
+### Requirements
 - Docker
 - Docker Compose
 
-### Pasos
-1. Clona el repositorio.
-2. Ejecuta el comando `docker-compose up` en el directorio `infra`.
-3. Utiliza la aplicación Postman para cargar la colección de solicitudes ubicada en la carpeta `api-collection` del proyecto.
+### Steps
+1. Clone the repository.
+2. Run the `docker-compose up` command in the `infra` directory.
+3. Use Postman to load the request collection located in the project's `api-collection` folder.
 
-### ¿Qué Levanta el Comando `docker-compose up`? 🐳
+### What Does the `docker-compose up` Command Lift Up? 🐳
+- Three containers with the URL Management application (admin-app-{1,2,3}) served by Gunicorn on port 8000.
+- Three containers with the URL Redirection application (redirector-app-{1,2,3}) served by Gunicorn on port 8080.
+- A container with Redis on port 6379.
+- A container with DynamoDB on port 9000 (:warning: not 8000).
+- A container with ElasticMQ on port 9324.
+- A container with Zookeeper on port 2181.
+- A container with Nginx on port 80, with configuration located in the `infra/nginx.lb.conf` file.
+Note: Docker volumes are used for cases requiring data persistence.
 
-- Tres contenedores con la aplicación de Administración de URLs (admin-app-{1,2,3}}) servida por Gunicorn en el puerto 8000.
-- Tres contenedores con la aplicación de Redirección de URLs (redirector-app-{1,2,3}) servida por Gunicorn en el puerto 8080.
-- Un contenedor con Redis en el puerto 6379.
-- Un contenedor con DynamoDB en el puerto 9000 (:warning: no es el 8000).
-- Un contenedor con ElasticMQ en el puerto 9324.
-- Un contenedor con Zookeeper en el puerto 2181.
-- Un contenedor con Nginx en el puerto 80, cuya configuración se encuentra en el archivo `infra/nginx.lb.conf`.
+## Architecture 🏗️
+### Architecture Diagram
+![Component Diagram](diagrama_arqui_EN.png)
 
-Nota: Para los casos en los que se requiere persistencia de datos, se utilizan volúmenes de Docker.
-
-## Arquitectura 🏗️
-
-### Diagrama de Arquitectura
-![Diagrama de Componentes](diagrama_arqui.png)
-
-## Stack Tecnológico 🛠️
-
-- Python 3.9 como lenguaje de programación
-- Flask 3.x como framework web
-- Redis como Cache
-- DynamoDB como base de datos NoSQL
-- elasticmq como simulador de SQS
+## Technology Stack 🛠️
+- Python 3.9 as programming language
+- Flask 3.x as web framework
+- Redis as Cache
+- DynamoDB as NoSQL database
+- ElasticMQ as SQS simulator
 - AWS SDK (Boto3)
-- Zookeeper para asegurar la alta disponibilidad del servicio y la unicidad al generar claves de las URLs cortas
-- Nginx como servidor web y balanceador de carga
-- guinicorn como servidor de aplicaciones WSGI
+- Zookeeper to ensure service high availability and uniqueness when generating short URL keys
+- Nginx as web server and load balancer
+- Gunicorn as WSGI application server
 - Docker
 - Docker Compose
 
-## Decisiones de Diseño 🧠
-
-### Base de Datos
-Se optó por DynamoDB como base de datos NoSQL por su escalabilidad y alta disponibilidad.
+## Design Decisions 🧠
+### Database
+DynamoDB was chosen as the NoSQL database for its scalability and high availability.
 
 ### Cache
-Se optó por Redis como cache para almacenar las URLs cortas y sus respectivas URLs largas.
+Redis was chosen as the cache to store short URLs and their respective long URLs.
 
-### Cola de Mensajes
-Se optó por elasticmq como simulador de SQS para almacenar los eventos de redirección de URLs cortas. De esta forma, se garantiza la alta disponibilidad del sistema y se evita la pérdida de eventos.
-Además, ElasticMQ es una herramienta que permite simular el servicio de SQS de AWS de forma local, utilizando el mismo SDK de AWS (Boto3).
+### Message Queue
+ElasticMQ was chosen as an SQS simulator to store short URL redirection events. This ensures the system's high availability and prevents event loss.
 
-### Arquitectura
-Se optó por una arquitectura de microservicios, donde cada servicio tiene una responsabilidad específica. De esta forma, se garantiza la escalabilidad y la alta disponibilidad del sistema.
+Additionally, ElasticMQ is a tool that allows simulating AWS SQS service locally, using the same AWS SDK (Boto3).
+
+### Architecture
+A microservices architecture was chosen, where each service has a specific responsibility. This ensures the system's scalability and high availability.
